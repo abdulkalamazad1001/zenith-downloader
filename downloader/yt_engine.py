@@ -2,6 +2,12 @@ import yt_dlp
 import os
 from utils.system_check import check_ffmpeg
 
+# Add local binary folder to PATH so yt-dlp can find 'ffmpeg' and 'node'
+# This is crucial for Render deployment where we install them locally
+local_bin = os.path.join(os.getcwd(), 'binary_ffmpeg')
+if os.path.exists(local_bin):
+    os.environ["PATH"] += os.pathsep + local_bin
+
 def get_video_info(url):
     """
     Fetches video information and available formats.
@@ -12,6 +18,11 @@ def get_video_info(url):
     options = {
         "quiet": True,
         "noplaylist": True,
+        "extractor_args": {
+            "youtube": {
+                "player_client": ["android", "web"],
+            }
+        }
     }
     with yt_dlp.YoutubeDL(options) as ydl:
         try:
@@ -112,9 +123,13 @@ def build_options(platform, format_id=None, progress_hook=None):
         "restrictfilenames": True, # Avoid special characters causing filesystem issues
     }
 
-    if progress_hook:
-        options['progress_hooks'] = [progress_hook]
-    
+    # Add Android Client to bypass 429/Sign-in errors
+    options['extractor_args'] = {
+        'youtube': {
+            'player_client': ['android', 'web'],
+        }
+    }
+
     if format_id == 'audio':
         # Audio extraction mode
         options.update({
