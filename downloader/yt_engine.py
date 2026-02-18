@@ -104,7 +104,6 @@ def build_options(platform, format_id=None, progress_hook=None):
     If format_id is 'audio', downloads best audio and converts to mp3.
     Otherwise adapts to availability of ffmpeg.
     """
-    has_ffmpeg = check_ffmpeg()
     
     options = {
         "quiet": True,
