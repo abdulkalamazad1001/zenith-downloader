@@ -20,8 +20,12 @@ fi
 if [ ! -f binary_ffmpeg/node ]; then
     echo "Downloading Node.js..."
     wget https://nodejs.org/dist/v20.10.0/node-v20.10.0-linux-x64.tar.xz
-    tar xvf node-v20.10.0-linux-x64.tar.xz --strip-components 1 -C binary_ffmpeg/ bin/node
-    rm node-v20.10.0-linux-x64.tar.xz
+    # Extract to current directory first
+    tar xf node-v20.10.0-linux-x64.tar.xz
+    # Move the node binary to our target folder
+    mv node-v20.10.0-linux-x64/bin/node binary_ffmpeg/
+    # Cleanup
+    rm -rf node-v20.10.0-linux-x64 node-v20.10.0-linux-x64.tar.xz
 fi
 
 # Make executable
