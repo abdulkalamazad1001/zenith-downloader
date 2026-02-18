@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-in-One Downloader</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>ZENITH</h1>
+            <p>Experience Media at its Peak</p>
+        </header>
+
+        <div class="input-group">
+            <input type="text" id="urlInput" placeholder="Paste link here (YouTube, Insta, X)...">
+        </div>
+
+        <button id="processBtn" onclick="processLink()">
+            <span class="btn-text">Get Video Info</span>
+            <div class="loader"></div>
+        </button>
+
+        <div id="message" class="message"></div>
+
+        <div id="resultContainer" class="result-container" style="display: none;">
+            <!-- Result content populated by JS -->
+            <div class="result-card">
+                <img id="videoThumbnail" src="" alt="Thumbnail">
+                <h3 id="videoTitle"></h3>
+
+                <div class="options-group">
+                    <select id="qualitySelect"></select>
+                    <button id="downloadBtn" onclick="startDownload('video')">
+                        <span class="btn-text">Download</span>
+                        <div class="loader"></div>
+                    </button>
+                    <button id="audioBtn" class="secondary-btn" onclick="startDownload('audio')">
+                        ♫ MP3 Audio
+                    </button>
+                </div>
+
+                <div id="progressContainer" class="progress-container" style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progressFill" class="progress-fill"></div>
+                    </div>
+                    <div id="progressText">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="historyContainer" class="history-container" style="display: none;">
+            <h3>Recent Downloads</h3>
+            <div id="historyList"></div>
+        </div>
+
+        <footer>
+            &copy; 2026 Zenith. Made by <a href="https://www.linkedin.com/in/t-abdul-kalam-azad/" target="_blank"
+                class="creator">
+                <svg class="linkedin-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.21-.43-2-1.52-2A1.6 1.6 0 0013 13.82V19h-3v-9h3v1.25a3.1 3.1 0 012.83-1.56c2.07 0 3.66 1.35 3.66 4.26z" />
+                </svg>
+                Abdul Kalam
+            </a>
+        </footer>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
