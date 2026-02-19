@@ -2,11 +2,7 @@ import yt_dlp
 import os
 from utils.system_check import check_ffmpeg
 
-# Add local binary folder to PATH so yt-dlp can find 'ffmpeg' and 'node'
-# This is crucial for Render deployment where we install them locally
-local_bin = os.path.join(os.getcwd(), 'binary_ffmpeg')
-if os.path.exists(local_bin):
-    os.environ["PATH"] += os.pathsep + local_bin
+
 
 def get_video_info(url):
     """
@@ -15,31 +11,22 @@ def get_video_info(url):
     """
     has_ffmpeg = check_ffmpeg()
     
+
+    # Standard Options for Local Execution
     options = {
         "quiet": True,
         "noplaylist": True,
-        "extractor_args": {
-            "youtube": {
-                "player_client": ["ios", "web"],
-            }
-        }
+        # 'ios' client can sometimes be stricter. 'android' or default is often safer for local IPs.
+        # We'll try default first, but you can uncomment 'android' if needed.
+        # "extractor_args": {
+        #     "youtube": {
+        #         "player_client": ["android", "web"],
+        #     }
+        # }
     }
     
-    # Check for cookies (Priority: Env Var > Secret File > Local File)
-    env_cookies = os.environ.get('COOKIES_CONTENT')
-    if env_cookies:
-        try:
-            tmp_cookies = "/tmp/cookies.txt"
-            with open(tmp_cookies, "w") as f:
-                f.write(env_cookies)
-            options['cookiefile'] = tmp_cookies
-            print(f"DEBUG: Using cookies from Env Var (wrote to {tmp_cookies})")
-        except Exception as e:
-            print(f"ERROR: Failed to write cookies from env var: {e}")
-    elif os.path.exists("/etc/secrets/cookies.txt"):
-        options['cookiefile'] = "/etc/secrets/cookies.txt"
-        print("DEBUG: Using cookies from /etc/secrets/cookies.txt")
-    elif os.path.exists("cookies.txt"):
+    # Check for cookies (Simple local check)
+    if os.path.exists("cookies.txt"):
         options['cookiefile'] = "cookies.txt"
         print("DEBUG: Using cookies from local cookies.txt")
     with yt_dlp.YoutubeDL(options) as ydl:
@@ -134,6 +121,8 @@ def build_options(platform, format_id=None, progress_hook=None):
     Otherwise adapts to availability of ffmpeg.
     """
     
+    has_ffmpeg = check_ffmpeg()
+
     options = {
         "quiet": True,
         "noplaylist": True,
@@ -141,34 +130,14 @@ def build_options(platform, format_id=None, progress_hook=None):
         "restrictfilenames": True, # Avoid special characters causing filesystem issues
     }
 
-    # Add iOS Client to bypass 429/Sign-in errors
-    options['extractor_args'] = {
-        'youtube': {
-            'player_client': ['ios', 'web'],
-        }
-    }
+    if progress_hook:
+        options['progress_hooks'] = [progress_hook]
 
-    # Check for cookies (Priority: Env Var > Secret File > Local File)
+    # Standard Options for Local Execution
+    # Removed forced 'ios' client to avoid issues on residential IPs
     
-    # 1. Environment Variable (Backup Method)
-    env_cookies = os.environ.get('COOKIES_CONTENT')
-    if env_cookies:
-        try:
-            tmp_cookies = "/tmp/cookies.txt"
-            with open(tmp_cookies, "w") as f:
-                f.write(env_cookies)
-            options['cookiefile'] = tmp_cookies
-            print(f"DEBUG: Using cookies from Env Var (wrote to {tmp_cookies})")
-        except Exception as e:
-            print(f"ERROR: Failed to write cookies from env var: {e}")
-
-    # 2. Render Secret File
-    elif os.path.exists("/etc/secrets/cookies.txt"):
-        options['cookiefile'] = "/etc/secrets/cookies.txt"
-        print("DEBUG: Using cookies from /etc/secrets/cookies.txt")
-        
-    # 3. Local File
-    elif os.path.exists("cookies.txt"):
+    # Check for cookies (Simple local check)
+    if os.path.exists("cookies.txt"):
         options['cookiefile'] = "cookies.txt"
         print("DEBUG: Using cookies from local cookies.txt")
 

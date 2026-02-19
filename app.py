@@ -17,22 +17,7 @@ if not check_ffmpeg():
     print("WARNING: 'ffmpeg' not found in system PATH.")
     print("High-quality downloads (1080p+) and merging (Video+Audio) will fail or fallback to lower quality.")
 
-# DEBUG: Check if cookies file exists in Render secrets
-print("DEBUG: Checking for secrets...")
-if os.path.exists("/etc/secrets"):
-    print(f"DEBUG: /etc/secrets exists. Contents: {os.listdir('/etc/secrets')}")
-    if os.path.exists("/etc/secrets/cookies.txt"):
-        print("DEBUG: cookies.txt found!")
-        try:
-            with open("/etc/secrets/cookies.txt", "r") as f:
-                content = f.read(20) # Read first 20 chars to verify readable
-                print(f"DEBUG: cookies.txt readable. First 20 chars: {content}...")
-        except Exception as e:
-            print(f"DEBUG: Error reading cookies.txt: {e}")
-    else:
-        print("DEBUG: cookies.txt NOT found in /etc/secrets")
-else:
-    print("DEBUG: /etc/secrets directory NOT found (Local dev or Secrets not mounted)")
+
 
 
 @app.route('/')

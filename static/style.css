@@ -283,9 +283,9 @@ select:focus {
 #downloadBtn {
     background: white;
     color: black;
-    flex: 2;
-    /* Make download button larger */
-    min-width: 140px;
+    flex: 1.5;
+    /* Reduced flex grow */
+    min-width: 120px;
 }
 
 .secondary-btn {
@@ -296,6 +296,9 @@ select:focus {
     border-radius: 12px;
     font-weight: 500;
     flex: 1;
+    min-width: 120px;
+    /* Added min-width to prevent squashing */
+    white-space: nowrap;
 }
 
 .secondary-btn:hover {

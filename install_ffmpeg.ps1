@@ -1,6 +1,9 @@
 $ErrorActionPreference = "Stop"
-$workdir = "C:\Users\abdul\.gemini\antigravity\scratch\ffmpeg_tool"
-New-Item -ItemType Directory -Force -Path $workdir | Out-Null
+# Use a hidden folder in the user's home directory
+$workdir = "$env:USERPROFILE\.zenith_ffmpeg"
+if (-not (Test-Path $workdir)) {
+    New-Item -ItemType Directory -Force -Path $workdir | Out-Null
+}
 Set-Location $workdir
 
 Write-Host "1. Downloading FFmpeg (This might take a minute)..."
@@ -9,7 +12,8 @@ $zip = "$workdir\ffmpeg.zip"
 
 try {
     Invoke-WebRequest -Uri $url -OutFile $zip -UseBasicParsing
-} catch {
+}
+catch {
     Write-Error "Download failed. Please check your internet connection."
     exit 1
 }
@@ -29,7 +33,8 @@ if ($ffmpegBinary) {
         Write-Host "3. Adding to System PATH..."
         [Environment]::SetEnvironmentVariable("Path", "$currentPath;$binPath", "User")
         Write-Host "Success! FFmpeg has been added to your PATH."
-    } else {
+    }
+    else {
         Write-Host "FFmpeg is already in your PATH."
     }
     
@@ -37,6 +42,7 @@ if ($ffmpegBinary) {
     Write-Host "IMPORTANT: You must RESTART your terminal or the App"
     Write-Host "for the changes to take effect."
     Write-Host "-----------------------------------------------------"
-} else {
+}
+else {
     Write-Error "Could not find ffmpeg.exe after extraction."
 }
