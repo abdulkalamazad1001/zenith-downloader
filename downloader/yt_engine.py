@@ -25,17 +25,23 @@ def get_video_info(url):
         }
     }
     
-    # Check for cookies file (Render Secret or Local)
-    # Render mounts secrets to /etc/secrets/
-    render_cookies = "/etc/secrets/cookies.txt"
-    local_cookies = "cookies.txt"
-    
-    if os.path.exists(render_cookies):
-        options['cookiefile'] = render_cookies
-        print(f"DEBUG: Using cookies from {render_cookies}")
-    elif os.path.exists(local_cookies):
-        options['cookiefile'] = local_cookies
-        print(f"DEBUG: Using cookies from {local_cookies}")
+    # Check for cookies (Priority: Env Var > Secret File > Local File)
+    env_cookies = os.environ.get('COOKIES_CONTENT')
+    if env_cookies:
+        try:
+            tmp_cookies = "/tmp/cookies.txt"
+            with open(tmp_cookies, "w") as f:
+                f.write(env_cookies)
+            options['cookiefile'] = tmp_cookies
+            print(f"DEBUG: Using cookies from Env Var (wrote to {tmp_cookies})")
+        except Exception as e:
+            print(f"ERROR: Failed to write cookies from env var: {e}")
+    elif os.path.exists("/etc/secrets/cookies.txt"):
+        options['cookiefile'] = "/etc/secrets/cookies.txt"
+        print("DEBUG: Using cookies from /etc/secrets/cookies.txt")
+    elif os.path.exists("cookies.txt"):
+        options['cookiefile'] = "cookies.txt"
+        print("DEBUG: Using cookies from local cookies.txt")
     with yt_dlp.YoutubeDL(options) as ydl:
         try:
             info = ydl.extract_info(url, download=False)
@@ -142,14 +148,29 @@ def build_options(platform, format_id=None, progress_hook=None):
         }
     }
 
-    # Check for cookies file (Render Secret or Local)
-    render_cookies = "/etc/secrets/cookies.txt"
-    local_cookies = "cookies.txt"
+    # Check for cookies (Priority: Env Var > Secret File > Local File)
     
-    if os.path.exists(render_cookies):
-        options['cookiefile'] = render_cookies
-    elif os.path.exists(local_cookies):
-        options['cookiefile'] = local_cookies
+    # 1. Environment Variable (Backup Method)
+    env_cookies = os.environ.get('COOKIES_CONTENT')
+    if env_cookies:
+        try:
+            tmp_cookies = "/tmp/cookies.txt"
+            with open(tmp_cookies, "w") as f:
+                f.write(env_cookies)
+            options['cookiefile'] = tmp_cookies
+            print(f"DEBUG: Using cookies from Env Var (wrote to {tmp_cookies})")
+        except Exception as e:
+            print(f"ERROR: Failed to write cookies from env var: {e}")
+
+    # 2. Render Secret File
+    elif os.path.exists("/etc/secrets/cookies.txt"):
+        options['cookiefile'] = "/etc/secrets/cookies.txt"
+        print("DEBUG: Using cookies from /etc/secrets/cookies.txt")
+        
+    # 3. Local File
+    elif os.path.exists("cookies.txt"):
+        options['cookiefile'] = "cookies.txt"
+        print("DEBUG: Using cookies from local cookies.txt")
 
     if format_id == 'audio':
         # Audio extraction mode
