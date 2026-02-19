@@ -109,5 +109,5 @@ Found a bug? Want to add a feature?
 ---
 
 <div align="center">
-  <sub>Built with ❤️ by Abdul Kalam</sub>
+  <sub>Built by <b>Abdul Kalam Azad</b></sub>
 </div>
