@@ -20,10 +20,22 @@ def get_video_info(url):
         "noplaylist": True,
         "extractor_args": {
             "youtube": {
-                "player_client": ["android", "web"],
+                "player_client": ["ios", "web"],
             }
         }
     }
+    
+    # Check for cookies file (Render Secret or Local)
+    # Render mounts secrets to /etc/secrets/
+    render_cookies = "/etc/secrets/cookies.txt"
+    local_cookies = "cookies.txt"
+    
+    if os.path.exists(render_cookies):
+        options['cookiefile'] = render_cookies
+        print(f"DEBUG: Using cookies from {render_cookies}")
+    elif os.path.exists(local_cookies):
+        options['cookiefile'] = local_cookies
+        print(f"DEBUG: Using cookies from {local_cookies}")
     with yt_dlp.YoutubeDL(options) as ydl:
         try:
             info = ydl.extract_info(url, download=False)
@@ -123,12 +135,21 @@ def build_options(platform, format_id=None, progress_hook=None):
         "restrictfilenames": True, # Avoid special characters causing filesystem issues
     }
 
-    # Add Android Client to bypass 429/Sign-in errors
+    # Add iOS Client to bypass 429/Sign-in errors
     options['extractor_args'] = {
         'youtube': {
-            'player_client': ['android', 'web'],
+            'player_client': ['ios', 'web'],
         }
     }
+
+    # Check for cookies file (Render Secret or Local)
+    render_cookies = "/etc/secrets/cookies.txt"
+    local_cookies = "cookies.txt"
+    
+    if os.path.exists(render_cookies):
+        options['cookiefile'] = render_cookies
+    elif os.path.exists(local_cookies):
+        options['cookiefile'] = local_cookies
 
     if format_id == 'audio':
         # Audio extraction mode
