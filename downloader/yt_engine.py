@@ -101,7 +101,6 @@ def get_video_info(url):
             # Thumbnail Fallback
             thumb = info.get('thumbnail')
             if not thumb and info.get('thumbnails'):
-                # Get the last one (usually highest quality)
                 thumb = info.get('thumbnails')[-1].get('url')
 
             return {
@@ -114,35 +113,22 @@ def get_video_info(url):
             return None
 
 def build_options(platform, format_id=None, progress_hook=None):
-    """
-    Configures yt-dlp options.
-    If format_id is provided, downloads that specific format.
-    If format_id is 'audio', downloads best audio and converts to mp3.
-    Otherwise adapts to availability of ffmpeg.
-    """
-    
     has_ffmpeg = check_ffmpeg()
 
     options = {
         "quiet": True,
         "noplaylist": True,
         "outtmpl": "downloads/%(extractor)s/%(title)s.%(ext)s",
-        "restrictfilenames": True, # Avoid special characters causing filesystem issues
+        "restrictfilenames": True, 
     }
 
     if progress_hook:
         options['progress_hooks'] = [progress_hook]
 
-    # Standard Options for Local Execution
-    # Removed forced 'ios' client to avoid issues on residential IPs
-    
-    # Check for cookies (Simple local check)
     if os.path.exists("cookies.txt"):
         options['cookiefile'] = "cookies.txt"
-        print("DEBUG: Using cookies from local cookies.txt")
 
     if format_id == 'audio':
-        # Audio extraction mode
         options.update({
             'format': 'bestaudio/best',
             'postprocessors': [{
@@ -152,18 +138,13 @@ def build_options(platform, format_id=None, progress_hook=None):
             }],
         })
     elif format_id:
-        # User selected a specific video format
         if has_ffmpeg:
-             # Try to merge best audio with the selected video if it's video-only
              options['format'] = f"{format_id}+bestaudio/best"
              options['merge_output_format'] = "mp4"
-             # Force AAC audio for compatibility (Fixes Opus on Windows)
              options['postprocessor_args'] = {'merger': ['-c:a', 'aac']}
         else:
-             # Direct download of the selected format
              options['format'] = format_id
     else:
-        # Default behavior (Best available)
         if has_ffmpeg:
             options['format'] = "bestvideo+bestaudio/best"
             options['merge_output_format'] = "mp4"
@@ -173,33 +154,23 @@ def build_options(platform, format_id=None, progress_hook=None):
     return options
 
 def run_downloader(url, options):
-    print(f"DEBUG: Starting download for {url} with options: {options}")
     with yt_dlp.YoutubeDL(options) as ydl:
         info = ydl.extract_info(url, download=True)
         filename = ydl.prepare_filename(info)
-        print(f"DEBUG: Initial filename from prepare_filename: {filename}")
         
-        # Check for MP3 audio conversion
         if options.get('postprocessors'):
             for pp in options['postprocessors']:
                 if pp.get('key') == 'FFmpegExtractAudio' and pp.get('preferredcodec') == 'mp3':
                     base, _ = os.path.splitext(filename)
-                    mp3_file = f"{base}.mp3"
-                    print(f"DEBUG: Checking for MP3: {mp3_file}")
-                    return mp3_file
+                    return f"{base}.mp3"
 
-        # Check for Video Merge (mp4)
         if options.get('merge_output_format') == 'mp4':
              base, _ = os.path.splitext(filename)
              potential_filename = f"{base}.mp4"
-             print(f"DEBUG: Checking for Merged MP4: {potential_filename}")
              if os.path.exists(potential_filename):
-                 print("DEBUG: Found Merged MP4")
                  return potential_filename
         
         if os.path.exists(filename):
-            print(f"DEBUG: Found original filename: {filename}")
             return filename
             
-        print(f"DEBUG: File not found. Returning expected: {filename}")
         return filename

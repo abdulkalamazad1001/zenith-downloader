@@ -21,7 +21,6 @@ async function processLink() {
         return;
     }
 
-    // Reset UI
     msg.textContent = "Fetching info...";
     msg.className = "message";
     processBtn.classList.add('loading');
@@ -58,10 +57,8 @@ function showResult(info) {
     thumbnail.src = info.thumbnail;
     title.textContent = info.title;
 
-    // Clear options
     qualitySelect.innerHTML = "";
 
-    // Populate options
     info.formats.forEach(fmt => {
         const option = document.createElement('option');
         option.value = fmt.id;
@@ -69,7 +66,6 @@ function showResult(info) {
         qualitySelect.appendChild(option);
     });
 
-    // Add Auto/Best option
     const autoOption = document.createElement('option');
     autoOption.value = "";
     autoOption.textContent = "Auto / Best Quality";
@@ -78,7 +74,6 @@ function showResult(info) {
 
     resultContainer.style.display = 'block';
 
-    // Store current video info for history
     window.currentVideoInfo = info;
 }
 
@@ -197,7 +192,7 @@ function addToHistory(info, type) {
 
     let history = JSON.parse(localStorage.getItem('dl_history') || '[]');
     history.unshift(item);
-    if (history.length > 5) history.pop(); // Keep last 5
+    if (history.length > 5) history.pop();
     localStorage.setItem('dl_history', JSON.stringify(history));
 
     loadHistory();

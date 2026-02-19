@@ -8,11 +8,9 @@ import time
 
 app = Flask(__name__)
 
-# Global dictionary to store progress: {download_id: {'percent': 0, 'status': 'Starting...'}}
 download_progress = {}
 
 
-# Check for FFmpeg at startup
 if not check_ffmpeg():
     print("WARNING: 'ffmpeg' not found in system PATH.")
     print("High-quality downloads (1080p+) and merging (Video+Audio) will fail or fallback to lower quality.")
@@ -47,13 +45,12 @@ def progress(download_id):
 def download():
     data = request.get_json()
     url = data.get('url')
-    format_id = data.get('format_id') # Optional
-    download_id = data.get('download_id') # Required for progress
+    format_id = data.get('format_id')
+    download_id = data.get('download_id')
     
     if not url:
         return jsonify({"success": False, "error": "No URL provided"}), 400
         
-    # Define callback to update global progress dict
     def update_progress(percent, status):
         if download_id:
             download_progress[download_id] = {'percent': percent, 'status': status}
@@ -61,14 +58,12 @@ def download():
     success, result = download_media(url, format_id, progress_callback=update_progress if download_id else None)
     
     if success:
-        # result is the filepath
         try:
             filename = os.path.basename(result)
             return send_file(result, as_attachment=True, download_name=filename)
         except Exception as e:
             return jsonify({"success": False, "error": f"File sending failed: {str(e)}"}), 500
     else:
-        # result is the error message
         return jsonify({"success": False, "error": result}), 400
 
 if __name__ == '__main__':
