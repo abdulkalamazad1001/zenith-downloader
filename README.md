@@ -58,6 +58,22 @@ Zenith needs **FFmpeg** to merge high-quality video and audio content.
 
 ---
 
+## 🚀 Quick Start (Mac & Linux)
+
+### 1. Install FFmpeg
+*   **Mac**: Open Terminal and run `brew install ffmpeg`.
+*   **Linux**: Run `sudo apt install ffmpeg` (or your distro's equivalent).
+
+### 2. Run the App
+1.  Open Terminal in the project folder.
+2.  Run this command to start:
+    ```bash
+    chmod +x run_mac_linux.sh && ./run_mac_linux.sh
+    ```
+3.  The app will open in your browser!
+
+---
+
 ## 🧠 Under the Hood
 
 Zenith is powered by a robust stack:
